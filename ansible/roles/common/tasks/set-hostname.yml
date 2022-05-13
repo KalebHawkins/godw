@@ -1,0 +1,15 @@
+- name: set hostname to inventory name
+  hostname:
+    name: "{{ inventory_hostname }}"
+  register: hostname_set
+
+- name: replace /etc/hostname contents
+  replace:
+    path: /etc/hostname
+    regexp: "localhost"
+    replace: "{{ inventory_hostname }}"
+  register: hostname_file_set
+
+- name: reboot server
+  reboot:
+  when: hostname_set.changed or hostname_file_set.changed

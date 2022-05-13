@@ -1,0 +1,9 @@
+---
+
+- name: register and subscribe to red hat network
+  community.general.redhat_subscription:
+    state: present
+    username: "{{ rhel_username }}"
+    password: "{{ rhel_password }}"
+    pool_ids: "{{ rhel_poolids | list }}"
+    force_register: true

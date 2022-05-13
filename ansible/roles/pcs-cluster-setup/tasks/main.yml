@@ -1,0 +1,53 @@
+---
+- name: install required software
+  dnf:
+    name: ['pcs', 'pacemaker', 'fence-agents-vmware-rest']
+    state: present
+    enablerepo: rhel-8-for-x86_64-highavailability-rpms
+
+- name: setup /etc/hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: enable high-availability service for firewalld
+  firewalld:
+    state: enabled
+    service: high-availability
+    permanent: true
+
+- name: restart firewalld service
+  systemd:
+    name: firewalld
+    state: restarted
+    enabled: true
+
+- name: set hacluster password
+  user:
+    name: hacluster
+    password: "{{ clusterPasswordHash }}"
+
+- name: enable and start pcsd daemon.
+  systemd:
+    name: pcsd
+    state: started
+    enabled: true
+
+- name: create the cluster
+  command:
+    cmd: pcs host auth {{ primaryNode }} {{ secondaryNode }} -u hacluster -p "{{ clusterPassword }}"
+  when: "'primary' in group_names"
+
+- name: setup Cluster
+  command:
+    cmd: pcs cluster setup {{ clusterName }} --start {{ primaryNode }} {{ secondaryNode }} --force
+  when: "'primary' in group_names"
+
+- name: enable cluster services
+  command:
+    cmd: pcs cluster enable --all
+  when: "'primary' in group_names"
+

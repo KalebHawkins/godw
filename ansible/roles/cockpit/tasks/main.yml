@@ -1,0 +1,4 @@
+---
+
+- name: install cockpit
+  import_tasks: install-cockpit.yml

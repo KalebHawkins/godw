@@ -1,0 +1,5 @@
+ansible/inv.yml
+ansible/vars.yml
+ansible/site.yml
+README.md
+dist/

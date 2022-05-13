@@ -1,0 +1,16 @@
+---
+
+- name: copying qualys agent
+  ansible.builtin.copy:
+    src: QualysCloudAgent.rpm
+    dest: /tmp/QualysCloudAgent.rpm
+
+- name: install qualys
+  yum:
+    name: /tmp/QualysCloudAgent.rpm
+    state: present
+    disable_gpg_check: true
+
+- name: activate qualysagent
+  command:
+    cmd: /usr/local/qualys/cloud-agent/bin/qualys-cloud-agent.sh ActivationId={{ qualysCustomerID }} CustomerId={{ qualysActivationID }}

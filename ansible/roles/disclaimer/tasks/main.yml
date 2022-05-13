@@ -1,0 +1,4 @@
+---
+
+- name: import setup-disclaimer.yml
+  import_tasks: setup-disclaimer.yml

@@ -1,0 +1,20 @@
+---
+- name: copy installer to server
+  copy:
+    src: "falcon-sensor.rpm"
+    dest: /tmp/
+
+- name: install crowdstrike
+  yum:
+    name: "/tmp/falcon-sensor.rpm"
+    state: present
+    disable_gpg_check: true
+
+- name: supply crowdstrike falcon CID
+  command: /opt/CrowdStrike/falconctl -s --cid="{{ crowdstrikeCustomerID }}" -f --tags="{{ crowdstrikeTag }}"
+
+- name: enable/start service
+  systemd:
+    name: falcon-sensor
+    enabled: yes
+    state: restarted

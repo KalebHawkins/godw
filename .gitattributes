@@ -1,0 +1,4 @@
+ansible/roles/devicewise/files/devicewise.tar.gz filter=lfs diff=lfs merge=lfs -text
+ansible/roles/qualys/files/QualysCloudAgent.rpm filter=lfs diff=lfs merge=lfs -text
+ansible/roles/crowdstrike/files/falcon-sensor.rpm filter=lfs diff=lfs merge=lfs -text
+ansible/roles/splunkforwarder/files/splunkforwarder.rpm filter=lfs diff=lfs merge=lfs -text

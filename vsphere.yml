@@ -1,0 +1,75 @@
+config:
+  vcenter:
+    url: https://127.0.0.1:8989
+    username: user
+    password: pass
+    insecure: true
+    datacenter: DC0
+    resourcePool: /DC0/host/DC0_H0/Resources
+    network: VM Network
+    folder: test
+    template: DC0_H0_VM0
+    cluster: DC0_C0
+  servers:
+    - name: test-vm01
+      cpu: 4
+      memoryMB: 32768
+      annotation: This is test 1
+      ipaddress: 192.168.50.150
+      netmask: 255.255.255.128
+      gateway: 192.168.50.129
+      cidr: 24
+      datastore: LocalDS_0
+    - name: test-vm02
+      cpu: 4
+      memoryMB: 32768
+      annotation: This is test 2
+      ipaddress: 192.168.50.151
+      netmask: 255.255.255.128
+      gateway: 192.168.50.129
+      cidr: 24
+      datastore: LocalDS_0
+  appDisk:
+    - size: 40G
+      datastore: LocalDS_0
+    - size: 40G
+      datastore: LocalDS_0
+  domainControllers:
+    - dc01
+    - dc02
+  dns:
+    servers:
+      - dns01
+      - dns02
+    suffix:
+      - example.com
+      - test.example.com
+      - dev.example.com
+  redhat:
+    username: 
+    password: 
+    poolIDs:
+      - d8e8fca2dc0f896fd7cb4cb0031ba249
+      - 126a8a51b9d1bbd07fddc65819a542c3
+  crowdstrike:
+    tag: SITE-Servers
+    customerID: 12345655789F4AD45611880C641E6CC-58
+  qualys:
+    activationID: 
+    customerID:
+  ansible:
+    sshKeyPath: /path/to/key
+    username: root
+  pcs:
+    clusterName: cluster01
+    clusterPassword: clusterpass
+    virtualIP: 127.0.0.1
+    vcenterServer: 127.0.0.1
+    vcenterServiceAccount: VCSAccount@vsphere.local
+    vcenterSAPassword: pass
+    primaryNode: test-vm01
+    secondaryNode: test-vm02
+  splunk:
+    username: admin
+    password: password
+    deployServer: splunkdeploy.example.com:8089

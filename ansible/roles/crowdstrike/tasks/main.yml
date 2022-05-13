@@ -1,0 +1,4 @@
+---
+
+- name: import install-crowdstrike
+  import_tasks: install-crowdstrike.yml

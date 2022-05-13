@@ -1,0 +1,34 @@
+---
+
+- name: set dns server and dns search suffix on primary node
+  community.general.nmcli:
+    conn_name: "{{ ansible_default_ipv4.interface }}"
+    ifname: "{{ ansible_default_ipv4.interface }}"
+    type: ethernet
+    ip4: "{{ primaryNodeIP }}/{{ primaryNodeCIDR }}"
+    gw4: "{{ primaryNodeGateway }}"
+    dns4:
+      - "{{ dns_server1 }}"
+      - "{{ dns_server2 }}"
+    dns4_search: "{{ dns_suffix_search_list | list }}"
+    state: present
+  when: ('primary' in group_names)
+
+- name: set dns server and dns search suffix on secondary node
+  community.general.nmcli:
+    conn_name: "{{ ansible_default_ipv4.interface }}"
+    ifname: "{{ ansible_default_ipv4.interface }}"
+    type: ethernet
+    ip4: "{{ secondaryNodeIP }}/{{ secondaryNodeCIDR }}"
+    gw4: "{{ secondaryNodeGateway }}"
+    dns4:
+      - "{{ dns_server1 }}"
+      - "{{ dns_server2 }}"
+    dns4_search: "{{ dns_suffix_search_list | list }}"
+    state: present
+  when: ('secondary' in group_names)
+
+- name: restart networkmanager service
+  systemd:
+    name: NetworkManager
+    state: restarted

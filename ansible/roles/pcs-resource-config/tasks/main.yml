@@ -1,0 +1,95 @@
+---
+- name: create mount points
+  file: 
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /appl
+    - /appl/dw
+
+- name: setup cluster stonith
+  shell: pcs stonith create {{ vcenterServerShortName }}_stonith fence_vmware_rest ipaddr={{ vcenterServer }} ipport=443 ssl_insecure=1 login={{ vcenterServiceAccount }}@vsphere.local passwd={{ vcenterSAPassword }} pcmk_reboot_action=reboot  pcmk_host_list={{ primaryNode }},{{ secondaryNode }} power_wait=3 op monitor interval=60s
+  when: ('primary' in group_names) and (platform != 'ahv')
+
+- name: disable cluster stonith
+  shell: pcs property set stonith-enabled=false --force
+  when: ('primary' in group_names) and (platform == 'ahv')
+
+# Per Redhat CASE: 02982515 for Devicewise
+# Update totem token=30000 per https://access.redhat.com/solutions/221263
+- name: set totem token timeout value
+  shell: pcs cluster config update totem token=30000
+  when: "'primary' in group_names"
+
+- name: sync pcs cluster
+  shell: pcs cluster sync
+  when: "'primary' in group_names"
+
+- name: reload corosync
+  shell: pcs cluster reload corosync
+  when: "'primary' in group_names"
+
+- name: set system_id_source to main node
+  ansible.builtin.replace:
+    path: /etc/lvm/lvm.conf
+    regexp: ^\s+#\ssystem_id_source = "[a-zA-Z]+"
+    replace: \tsystem_id_source = "uname"
+
+- name: create a new primary partition for LVM
+  parted:
+    device: "{{ item }}"
+    number: 1
+    flags: [ lvm ]
+    state: present
+  with_items:
+    - /dev/sdb
+    - /dev/sdc
+  when: "'primary' in group_names"
+
+- name: create Volume Group
+  community.general.lvg:
+    vg: dwvg
+    pvs: 
+      - /dev/sdb1
+      - /dev/sdc1
+    pvresize: true
+    vg_options: --setautoactivation n
+  when: "'primary' in group_names"
+
+- name: create Logical Volume
+  lvol:
+    vg: dwvg
+    lv: dwlv
+    size: +100%FREE
+    opts: -m1
+  when: "'primary' in group_names"
+
+- name: create Filesystem on LVM
+  filesystem:
+    fstype: ext4
+    dev: /dev/mapper/dwvg-dwlv
+  when: "'primary' in group_names"
+
+- name: rebuild initramfs
+  shell: dracut -H -f /boot/initramfs-$(uname -r).img $(uname -r)
+
+- name: Reboot
+  reboot:
+
+- name: create dwvg resource
+  shell: pcs resource create dwvg ocf:heartbeat:LVM-activate vgname=dwvg vg_access_mode=system_id --group dwgrp
+  when: "'primary' in group_names"
+
+- name: create dwlv resource
+  shell: pcs resource create dwlv ocf:heartbeat:Filesystem device="/dev/dwvg/dwlv" directory="/appl/dw" fstype="ext4" --group dwgrp
+  when: "'primary' in group_names"
+
+- name: update timeout of dwvg and dwlv
+  shell: pcs resource update dwvg op monitor interval=10 timeout=90 && pcs resource update dwlv op monitor interval=20 timeout=90
+  when: "'primary' in group_names"
+
+- name: set resource stickyness
+  shell: pcs resource defaults resource-stickiness=100
+  when: "'primary' in group_names"
+
+  

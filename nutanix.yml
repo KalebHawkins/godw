@@ -1,0 +1,66 @@
+config:
+  ahv:
+    url: https://127.0.0.1:9440
+    username: user
+    password: pass
+    insecure: true
+    networkUUID: 93012aaa-978b-4244-8a5b-8ea7c0b829d2
+    storageContainerUUID: 03765e9b-6bfd-46f7-8a4a-a029d3e2a522
+    volumeGroup: clustervg
+    template: test
+  servers:
+    - name: test-vm01
+      cpu: 4
+      memoryMB: 32768
+      ipaddress: 192.168.50.151
+      netmask: 255.255.255.128
+      gateway: 192.168.50.129
+      cidr: 24
+    - name: test-vm02
+      cpu: 4
+      memoryMB: 32768
+      ipaddress: 192.168.50.151
+      netmask: 255.255.255.128
+      gateway: 192.168.50.129
+      cidr: 24
+  appDisk:
+    sizeGB: 40
+  domainControllers:
+    - dc01
+    - dc02
+  dns:
+    servers:
+      - dns01
+      - dns02
+    suffix:
+      - example.com
+      - test.example.com
+      - dev.example.com
+  redhat:
+    username: 
+    password: 
+    poolIDs:
+      - d8e8fca2dc0f896fd7cb4cb0031ba249
+      - 126a8a51b9d1bbd07fddc65819a542c3
+  crowdstrike:
+    tag: SITE-Servers
+    customerID: 12345655789F4AD45611880C641E6CC-58
+  qualys:
+    activationID: 
+    customerID:
+  ansible:
+    sshKeyPath: /path/to/key
+    username: root
+  pcs:
+    clusterName: cluster01
+    clusterPassword: clusterpass
+    virtualIP: 127.0.0.1
+    vcenterServer: 127.0.0.1
+    vcenterServiceAccount: VCSAccount@vsphere.local
+    vcenterSAPassword: pass
+    primaryNode: test-vm01
+    secondaryNode: test-vm02
+  splunk:
+    username: admin
+    password: password
+    deployServer: splunkdeploy.example.com:8089

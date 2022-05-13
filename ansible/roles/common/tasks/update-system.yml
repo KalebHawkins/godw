@@ -1,0 +1,15 @@
+- name: update all system packages
+  yum:
+    name: "*"
+    state: latest
+    update_cache: true
+    skip_broken: true
+
+- name: Checking if a reboot is required
+  shell: needs-restarting -r
+  failed_when: false
+  register: reboot_required
+
+- name: reboot if required
+  reboot:
+  when: reboot_required.rc == 1

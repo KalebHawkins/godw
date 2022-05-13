@@ -1,0 +1,16 @@
+---
+
+- name: import set-hostname.yml
+  import_tasks: set-hostname.yml
+
+- name: import set-dnsservers.yml
+  import_tasks: set-dnsservers.yml
+
+- name: import register-RHN.yml
+  import_tasks: register-RHN.yml
+
+- name: import update-system.yml
+  import_tasks: update-system.yml
+
+- name: import setup-chronyd.yml
+  import_tasks: setup-chronyd.yml

@@ -1,0 +1,19 @@
+[Unit]
+Description=deviceWISE Asset Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=HOME=/opt/dw
+Environment=PATH=/opt/dw:/opt/dw/dwcore:/opt/dw/jre/bin:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
+Environment=LD_LIBRARY_PATH=/opt/dw/dwcore/lib:/opt/dw/dwcore/plugins:$LD_LIBRARY_PATH
+Environment=SSL_CERT_DIR=/opt/dw/dwcore/certs
+WorkingDirectory=/opt/dw/dwcore
+ExecStart=/opt/dw/dwcore/dwcore
+KillMode=process
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,4 @@
+---
+
+- name: install qualys
+  import_tasks: install-qualys.yml

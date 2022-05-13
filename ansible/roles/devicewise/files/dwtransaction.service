@@ -1,0 +1,21 @@
+[Unit]
+Description=deviceWISE Enterprise Transaction Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/dw/dwjava
+Environment=HOME=/opt/dw
+Environment=JAVA_HOME=/opt/dw/jre
+Environment=PATH=/opt/dw:/opt/dw/dwcore:/opt/dw/jre/bin:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin
+Environment=LD_LIBRARY_PATH=/opt/dw/dwcore/lib:/opt/dw/dwcore/plugins:/opt/dw/dwjava:$LD_LIBRARY_PATH
+Environment=CLASSPATH=/opt/dw/dwjava/*:/opt/dw/staging/system/jars/*:
+ExecStart=/usr/bin/env /opt/dw/jre/bin/java -Dfile.encoding=utf-8 -Djava.library.path=.:../dwcore/lib -Xms128m -Xmx512m com.ils_tech.dw.ts.server.DWTransactionEngine -p 4011
+SyslogIdentifier=dwtransaction
+KillMode=process
+Restart=always
+RestartSec=4
+
+[Install]
+WantedBy=multi-user.target

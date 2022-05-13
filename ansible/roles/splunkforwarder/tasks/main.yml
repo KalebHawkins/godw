@@ -1,0 +1,83 @@
+---
+
+- name: install python3 pip package.
+  yum:
+    update_cache: true
+    state: present
+    name:
+      - python3-pip
+
+- name: install pexpect
+  pip:
+    name: pexpect
+    state: present
+    executable: /usr/bin/pip3
+
+- name: remove old forwarder
+  yum:
+    name: splunkforwarder
+    state: absent
+
+- name: remove /etc/systemd/system/SplunkForwarder.service
+  file:
+    path: /etc/systemd/system/SplunkForwarder.service
+    state: absent
+
+- name: copy splunk forwarder rpm pkg
+  copy:
+    src: splunkforwarder.rpm
+    dest: /tmp/splunkforwarder.rpm
+    mode: 0644
+
+- name: install splunkforwarder rpm
+  yum:
+    name: /tmp/splunkforwarder.rpm
+    state: present
+    disable_gpg_check: true
+
+- name: check if existing configuration exists
+  stat:
+    path: /opt/splunkforwarder/etc
+  register: config
+
+- name: start and accept license agreement for splunkforwarder
+  expect:
+    command: "/opt/splunkforwarder/bin/splunk start --accept-license"
+    responses:
+     (.*)administrator username(.*): "admin"
+     (.*)new password(.*): 'admin911$'
+    echo: no
+  when: 'not config.stat.exists'
+
+- name: set connection to deployment server
+  expect:
+    command: /opt/splunkforwarder/bin/splunk set deploy-poll {{ splunkDeployServer }}
+    responses:
+      (.*)username(.*): "{{ splunkUsername }}"
+      (.*)Password(.*): "{{ splunkPassword }}"
+    echo: no
+  when: 'not config.stat.exists'
+
+- name: check to see if splunk is running again
+  shell: "ps aux | grep splunk"
+  register: splunkrunning
+
+- name: stop splunk service
+  shell: /opt/splunkforwarder/bin/splunk stop
+  when: 'splunkrunning.stdout.find("splunkd") != -1'
+
+- name: chown -R splunk:splunk /opt/splunkforwarder
+  file:
+    path: /opt/splunkforwarder
+    state: directory
+    recurse: true
+    owner: splunk
+    group: splunk
+
+- name: set splunk to start at boot
+  command: /opt/splunkforwarder/bin/splunk enable boot-start -systemd-managed 1 --accept-license --no-prompt --answer-yes
+
+- name: ensure service is started
+  systemd:
+    name: SplunkForwarder
+    state: restarted

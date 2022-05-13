@@ -1,0 +1,117 @@
+---
+- name: install dependencies
+  yum:
+    name: [ "libnsl", "python3-libselinux" ]
+    state: present
+
+- name: permit devicewise traffic tcp
+  ansible.posix.firewalld:
+    port: "{{ item }}/tcp"
+    permanent: yes
+    state: enabled
+  with_items:
+    - 4012
+    - 8080
+    - 8443
+    - 44818
+    - 9001
+    - 17472
+    - 8883
+    - 6888
+    - 6889
+    - 47002
+    - 48001
+    - 48002
+    - 48003
+    - 48004
+    - 49000
+
+- name: permit udp devicewise traffic
+  ansible.posix.firewalld:
+    port: "{{ item }}/udp"  
+    permanent: yes
+    state: enabled
+  with_items: 
+    - 4009
+    - 52311
+
+- name: restart firewall service
+  systemd:
+    name: firewalld
+    state: restarted
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+
+- name: ensure resources are located on primary node for installation
+  shell: pcs resource move dwgrp {{ primaryNode }}
+  ignore_errors: true
+  when: "'primary' in group_names"
+
+- name: pause for pacemaker to mount dwlv resources
+  pause:  
+    seconds: 15
+
+- name: create soft link from /appl/dw to /opt/dw
+  file:
+    src: /appl/dw
+    dest: /opt/dw
+    state: link
+  
+- name: Create a dw-install directory in /appl/dw/
+  ansible.builtin.file:
+    path: /appl/dw/dw-install
+    state: directory
+  when: "'primary' in group_names"
+
+- name: untar devicewise installation tar
+  ansible.builtin.unarchive:
+    src: devicewise.tar.gz
+    dest: /appl/dw/dw-install
+  when: "'primary' in group_names"
+
+- name: install devicewise
+  shell: ./devicewise.install now
+  args:
+    chdir: /appl/dw/dw-install/dwenterprise
+  when: "'primary' in group_names"
+
+- name: create custom config 
+  copy: 
+    dest: "/appl/dw/dwcore/dwcore.custom.properties"
+    content: |
+      debug.gen.onboot=3
+  when: "'primary' in group_names"
+
+- name: copy devicewise.service file to secondary node
+  copy:
+    src: devicewise.service
+    dest: /etc/systemd/system/devicewise.service
+  when: "'secondary' in group_names"
+
+- name: copy dwtransaction.service file to secondary node
+  copy:
+    src: dwtransaction.service
+    dest: /etc/systemd/system/dwtransaction.service
+  when: "'secondary' in group_names"
+
+- name: create DW systemd resource
+  shell: pcs resource create DW systemd:devicewise.service --group dwgrp --after dwlv
+  when: "'primary' in group_names"
+
+- name: create DWt systemd resource
+  shell: pcs resource create DWt systemd:dwtransaction.service --group dwgrp --after DW
+  when: "'primary' in group_names"
+
+- name: create Virtual IP resource
+  shell: pcs resource create {{ clusterName }} ocf:heartbeat:IPaddr2 ip={{ virtualIP }} cidr_netmask={{ primaryNodeCIDR }} op monitor interval=10s --after DWt --group dwgrp
+  when: "'primary' in group_names"
+
+- name: clear location constraints
+  shell: pcs resource clear dwgrp
+  when: "'primary' in group_names"
+
+- name: final reboot
+  reboot:

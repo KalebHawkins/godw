@@ -1,0 +1,30 @@
+---
+
+- name: install cockpit
+  yum:
+    name: cockpit*
+    state: latest
+
+- name: disable cockpit root logon
+  lineinfile:
+    path: /etc/pam.d/cockpit
+    line: "auth requisite pam_succeed_if.so uid >= 1000"
+    insertafter: "^#%PAM"
+    firstmatch: true
+
+- name: start and enable socket
+  systemd:
+    enabled: true
+    name: cockpit.socket
+    state: restarted
+
+- name: open firewall port
+  firewalld:
+    service: cockpit
+    permanent: true
+    state: enabled
+
+- name: restart firewalld service
+  systemd:
+    name: firewalld
+    state: restarted

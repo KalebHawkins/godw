@@ -1,0 +1,6 @@
+---
+
+- name: setup disclaimer
+  copy:
+    src: disclaimer
+    dest: /etc/motd
