@@ -51,6 +51,8 @@ config:
   ansible:
     sshKeyPath: /path/to/key
     username: root
+    http_proxy: http://127.0.0.1:8080
+    https_proxy: http://127.0.0.1:8080
   pcs:
     clusterName: cluster01
     clusterPassword: clusterpass

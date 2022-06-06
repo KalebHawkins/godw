@@ -216,7 +216,22 @@ func generatePlaybook() error {
     - splunkforwarder
     - pcs-cluster-setup
     - pcs-resource-config
-    - devicewise`
+    - devicewise
+`
+
+	httpProxy := viper.GetString("ansible.httpProxy")
+	httpsProxy := viper.GetString("ansible.httpsProxy")
+	if httpProxy != "" || httpsProxy != "" {
+		plybk = fmt.Sprintf("%s\n  environment:",
+			plybk)
+	}
+
+	if httpProxy != "" {
+		plybk = fmt.Sprintf("%s\n    http_proxy: %s", plybk, httpProxy)
+	}
+	if httpsProxy != "" {
+		plybk = fmt.Sprintf("%s\n    https_proxy: %s", plybk, httpsProxy)
+	}
 
 	err := ioutil.WriteFile("./ansible/site.yml", []byte(plybk), 0755)
 	if err != nil {
