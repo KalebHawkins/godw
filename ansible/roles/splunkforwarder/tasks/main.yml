@@ -44,8 +44,8 @@
   expect:
     command: "/opt/splunkforwarder/bin/splunk start --accept-license"
     responses:
-     (.*)administrator username(.*): "admin"
-     (.*)new password(.*): 'admin911$'
+     (.*)administrator username(.*): "{{ splunkUsername }}"
+     (.*)new password(.*): "{{ splunkPassword }}"
     echo: no
   when: 'not config.stat.exists'
 

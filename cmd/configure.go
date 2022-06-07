@@ -241,9 +241,6 @@ func generatePlaybook() error {
     - crowdstrike
     - qualys
     - splunkforwarder
-    - pcs-cluster-setup
-    - pcs-resource-config
-    - devicewise
 `
 
 	httpProxy := viper.GetString("config.ansible.httpProxy")
@@ -259,6 +256,21 @@ func generatePlaybook() error {
 	if httpsProxy != "" {
 		plybk = fmt.Sprintf("%s\n    https_proxy: %s", plybk, httpsProxy)
 	}
+
+	plybk = fmt.Sprintf(`
+%s
+
+- hosts: primary:secondary
+  gather_facts: true
+  vars_files:
+    - vars.yml
+  
+  roles:
+    - pcs-cluster-setup
+    - pcs-resource-config
+    - devicewise
+  
+`, plybk)
 
 	err := ioutil.WriteFile("./ansible/site.yml", []byte(plybk), 0755)
 	if err != nil {
