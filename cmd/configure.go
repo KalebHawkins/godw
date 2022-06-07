@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 	"strings"
 
 	"github.com/apenella/go-ansible/pkg/execute"
@@ -48,7 +49,7 @@ provided configuration file.
 		err = generatePlaybook()
 		handleErr(err)
 
-		RunPlaybook()
+		// RunPlaybook()
 	},
 }
 
@@ -100,9 +101,9 @@ type AnsibleVars struct {
 	SplunkPassword         string      `yaml:"splunkPassword"`
 	SplunkDeployServer     string      `yaml:"splunkDeployServer"`
 	AnsibleHttpProxy       string      `yaml:"ansibleHttpProxy"`
-	AnsibleHttpProxyPort   string      `yaml:"ansibleHttpProxyPort"`
+	AnsibleHttpProxyPort   int         `yaml:"ansibleHttpProxyPort"`
 	AnsibleHttpsProxy      string      `yaml:"ansibleHttpsProxy"`
-	AnsibleHttpsProxyPort  string      `yaml:"ansibleHttpsProxyPort"`
+	AnsibleHttpsProxyPort  int         `yaml:"ansibleHttpsProxyPort"`
 }
 
 func generateAnsibleVars() error {
@@ -158,12 +159,18 @@ func generateAnsibleVars() error {
 
 	if httpProxy != "" {
 		httpProxyPort := strings.Split(httpProxy, ":")[2]
-		ansVars.AnsibleHttpProxyPort = httpProxyPort
+		ansVars.AnsibleHttpProxyPort, err = strconv.Atoi(httpProxyPort)
+		if err != nil {
+			panic(err)
+		}
 		ansVars.AnsibleHttpProxy = strings.TrimSuffix(httpProxy, ":"+httpProxyPort)
 	}
 	if httpsProxy != "" {
 		httpsProxyPort := strings.Split(httpsProxy, ":")[2]
-		ansVars.AnsibleHttpsProxyPort = httpsProxyPort
+		ansVars.AnsibleHttpsProxyPort, err = strconv.Atoi(httpsProxyPort)
+		if err != nil {
+			panic(err)
+		}
 		ansVars.AnsibleHttpsProxy = strings.TrimSuffix(httpsProxy, ":"+httpsProxyPort)
 	}
 
