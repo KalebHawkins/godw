@@ -219,8 +219,8 @@ func generatePlaybook() error {
     - devicewise
 `
 
-	httpProxy := viper.GetString("ansible.httpProxy")
-	httpsProxy := viper.GetString("ansible.httpsProxy")
+	httpProxy := viper.GetString("config.ansible.httpProxy")
+	httpsProxy := viper.GetString("config.ansible.httpsProxy")
 	if httpProxy != "" || httpsProxy != "" {
 		plybk = fmt.Sprintf("%s\n  environment:",
 			plybk)
