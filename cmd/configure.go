@@ -48,7 +48,7 @@ provided configuration file.
 		err = generatePlaybook()
 		handleErr(err)
 
-		RunPlaybook()
+		// RunPlaybook()
 	},
 }
 
@@ -99,10 +99,10 @@ type AnsibleVars struct {
 	SplunkUsername         string      `yaml:"splunkUsername"`
 	SplunkPassword         string      `yaml:"splunkPassword"`
 	SplunkDeployServer     string      `yaml:"splunkDeployServer"`
-	ansibleHttpProxy       string      `yaml:"ansibleHttpProxy"`
-	ansibleHttpProxyPort   string      `yaml:"ansibleHttpProxyPort"`
-	ansibleHttpsProxy      string      `yaml:"ansibleHttpsProxy"`
-	ansibleHttpsProxyPort  string      `yaml:"ansibleHttpsProxyPort"`
+	AnsibleHttpProxy       string      `yaml:"ansibleHttpProxy"`
+	AnsibleHttpProxyPort   string      `yaml:"ansibleHttpProxyPort"`
+	AnsibleHttpsProxy      string      `yaml:"ansibleHttpsProxy"`
+	AnsibleHttpsProxyPort  string      `yaml:"ansibleHttpsProxyPort"`
 }
 
 func generateAnsibleVars() error {
@@ -132,8 +132,6 @@ func generateAnsibleVars() error {
 		SplunkUsername:         viper.GetString("config.splunk.username"),
 		SplunkPassword:         viper.GetString("config.splunk.password"),
 		SplunkDeployServer:     viper.GetString("config.splunk.deployServer"),
-		ansibleHttpProxy:       viper.GetString("config.ansible.httpProxy"),
-		ansibleHttpsProxy:      viper.GetString("config.ansible.httpsProxy"),
 	}
 
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(ansVars.ClusterPassword), bcrypt.DefaultCost)
@@ -155,13 +153,19 @@ func generateAnsibleVars() error {
 	ansVars.PrimaryNodeCIDR = nodes[0].Cidr
 	ansVars.SecondaryNodeCIDR = nodes[1].Cidr
 
-	httpProxyPort := strings.Split(ansVars.ansibleHttpProxy, ":")
-	ansVars.ansibleHttpProxy = strings.Join(httpProxyPort[0:1], "")
-	ansVars.ansibleHttpProxyPort = httpProxyPort[2]
+	httpProxy := viper.GetString("config.ansible.httpProxy")
+	httpsProxy := viper.GetString("config.ansible.httpsProxy")
 
-	httpsProxyPort := strings.Split(ansVars.ansibleHttpsProxy, ":")
-	ansVars.ansibleHttpsProxy = strings.Join(httpsProxyPort[0:1], "")
-	ansVars.ansibleHttpsProxyPort = httpsProxyPort[2]
+	if httpProxy != "" {
+		httpProxyPort := strings.Split(httpProxy, ":")[2]
+		ansVars.AnsibleHttpProxyPort = httpProxyPort
+		ansVars.AnsibleHttpProxy = strings.TrimSuffix(httpProxy, ":"+httpProxyPort)
+	}
+	if httpsProxy != "" {
+		httpsProxyPort := strings.Split(httpsProxy, ":")[2]
+		ansVars.AnsibleHttpsProxyPort = httpsProxyPort
+		ansVars.AnsibleHttpsProxy = strings.TrimSuffix(httpsProxy, ":"+httpsProxyPort)
+	}
 
 	if k := viper.Sub("config.vcenter"); k != nil {
 		ansVars.Platform = "vsphere"
