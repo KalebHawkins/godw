@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"strings"
 
 	"github.com/apenella/go-ansible/pkg/execute"
@@ -159,12 +160,20 @@ func generateAnsibleVars() error {
 	if httpProxy != "" {
 		httpProxyPort := strings.Split(httpProxy, ":")[2]
 		ansVars.AnsibleHttpProxyPort = httpProxyPort
-		ansVars.AnsibleHttpProxy = strings.TrimSuffix(httpProxy, ":"+httpProxyPort)
+		url, err := url.Parse(httpProxy)
+		if err != nil {
+			return err
+		}
+		ansVars.AnsibleHttpProxy = url.Hostname()
 	}
 	if httpsProxy != "" {
 		httpsProxyPort := strings.Split(httpsProxy, ":")[2]
 		ansVars.AnsibleHttpsProxyPort = httpsProxyPort
-		ansVars.AnsibleHttpsProxy = strings.TrimSuffix(httpsProxy, ":"+httpsProxyPort)
+		url, err := url.Parse(httpsProxy)
+		if err != nil {
+			return err
+		}
+		ansVars.AnsibleHttpsProxy = url.Hostname()
 	}
 
 	if k := viper.Sub("config.vcenter"); k != nil {
