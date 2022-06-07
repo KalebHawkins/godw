@@ -164,7 +164,7 @@ func (vm *VirtualMachine) Create(vc *VCenterClient) error {
 		vc.Template,
 		"-on=false",
 		fmt.Sprintf("-ds=%v", vm.Datastore),
-		fmt.Sprintf("-cluster=%v", vc.Cluster),
+		// fmt.Sprintf("-cluster=%v", vc.Cluster),
 		fmt.Sprintf("-net=%v", vc.Network),
 		fmt.Sprintf("-annotation=%v", vm.Annotation),
 		"-net.adapter=vmxnet3",
