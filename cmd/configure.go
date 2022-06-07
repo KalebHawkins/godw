@@ -48,7 +48,7 @@ provided configuration file.
 		err = generatePlaybook()
 		handleErr(err)
 
-		// RunPlaybook()
+		RunPlaybook()
 	},
 }
 
