@@ -62,8 +62,6 @@ config:
     username: root
     httpProxy: http://127.0.0.1:8080
     httpsProxy: http://127.0.0.1:8080
-    proxyUsername:
-    proxyPassword:
   pcs:
     clusterName: cluster01
     clusterPassword: clusterpass

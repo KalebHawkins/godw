@@ -9,5 +9,3 @@
     force_register: true
     server_proxy_hostname: "{{ ansibleHttpsProxy }}"
     server_proxy_port: "{{ ansibleHttpsProxyPort }}"
-    server_proxy_user: "{{ ansibleProxyUsername }}"
-    server_proxy_password: "{{ ansibleProxyPassword }}"

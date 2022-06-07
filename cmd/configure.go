@@ -103,8 +103,6 @@ type AnsibleVars struct {
 	AnsibleHttpProxyPort   string      `yaml:"ansibleHttpProxyPort"`
 	AnsibleHttpsProxy      string      `yaml:"ansibleHttpsProxy"`
 	AnsibleHttpsProxyPort  string      `yaml:"ansibleHttpsProxyPort"`
-	AnsibleProxyUsername   string      `yaml:"ansibleProxyUsername"`
-	AnsibleProxyPassword   string      `yaml:"ansibleProxyPassword"`
 }
 
 func generateAnsibleVars() error {
@@ -134,8 +132,6 @@ func generateAnsibleVars() error {
 		SplunkUsername:         viper.GetString("config.splunk.username"),
 		SplunkPassword:         viper.GetString("config.splunk.password"),
 		SplunkDeployServer:     viper.GetString("config.splunk.deployServer"),
-		AnsibleProxyUsername:   viper.GetString("config.ansible.proxyUsername"),
-		AnsibleProxyPassword:   viper.GetString("config.ansible.proxyPassword"),
 	}
 
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(ansVars.ClusterPassword), bcrypt.DefaultCost)
