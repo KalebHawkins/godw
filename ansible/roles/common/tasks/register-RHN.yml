@@ -7,3 +7,5 @@
     password: "{{ rhel_password }}"
     pool_ids: "{{ rhel_poolids | list }}"
     force_register: true
+    server_proxy_hostname: "{{ ansibleHttpsProxy }}"
+    server_proxy_port: "{{ ansibleHttpsProxyPort }}" 
