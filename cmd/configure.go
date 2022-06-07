@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"strconv"
 	"strings"
 
 	"github.com/apenella/go-ansible/pkg/execute"
@@ -49,7 +48,7 @@ provided configuration file.
 		err = generatePlaybook()
 		handleErr(err)
 
-		RunPlaybook()
+		// RunPlaybook()
 	},
 }
 
@@ -101,9 +100,11 @@ type AnsibleVars struct {
 	SplunkPassword         string      `yaml:"splunkPassword"`
 	SplunkDeployServer     string      `yaml:"splunkDeployServer"`
 	AnsibleHttpProxy       string      `yaml:"ansibleHttpProxy"`
-	AnsibleHttpProxyPort   int         `yaml:"ansibleHttpProxyPort"`
+	AnsibleHttpProxyPort   string      `yaml:"ansibleHttpProxyPort"`
 	AnsibleHttpsProxy      string      `yaml:"ansibleHttpsProxy"`
-	AnsibleHttpsProxyPort  int         `yaml:"ansibleHttpsProxyPort"`
+	AnsibleHttpsProxyPort  string      `yaml:"ansibleHttpsProxyPort"`
+	AnsibleProxyUsername   string      `yaml:"ansibleProxyUsername"`
+	AnsibleProxyPassword   string      `yaml:"ansibleProxyPassword"`
 }
 
 func generateAnsibleVars() error {
@@ -133,6 +134,8 @@ func generateAnsibleVars() error {
 		SplunkUsername:         viper.GetString("config.splunk.username"),
 		SplunkPassword:         viper.GetString("config.splunk.password"),
 		SplunkDeployServer:     viper.GetString("config.splunk.deployServer"),
+		AnsibleProxyUsername:   viper.GetString("config.ansible.proxyUsername"),
+		AnsibleProxyPassword:   viper.GetString("config.ansible.proxyPassword"),
 	}
 
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(ansVars.ClusterPassword), bcrypt.DefaultCost)
@@ -159,18 +162,12 @@ func generateAnsibleVars() error {
 
 	if httpProxy != "" {
 		httpProxyPort := strings.Split(httpProxy, ":")[2]
-		ansVars.AnsibleHttpProxyPort, err = strconv.Atoi(httpProxyPort)
-		if err != nil {
-			panic(err)
-		}
+		ansVars.AnsibleHttpProxyPort = httpProxyPort
 		ansVars.AnsibleHttpProxy = strings.TrimSuffix(httpProxy, ":"+httpProxyPort)
 	}
 	if httpsProxy != "" {
 		httpsProxyPort := strings.Split(httpsProxy, ":")[2]
-		ansVars.AnsibleHttpsProxyPort, err = strconv.Atoi(httpsProxyPort)
-		if err != nil {
-			panic(err)
-		}
+		ansVars.AnsibleHttpsProxyPort = httpsProxyPort
 		ansVars.AnsibleHttpsProxy = strings.TrimSuffix(httpsProxy, ":"+httpsProxyPort)
 	}
 
