@@ -52,18 +52,14 @@
       HASHED_PASSWORD = {{ passhash.stdout }}
     dest: /opt/splunkforwarder/etc/system/local/user-seed.conf
 
-- name: start and accept license agreement for splunkforwarder
-  expect:
-    command: "/opt/splunkforwarder/bin/splunk start --accept-license"
-    responses:
-     (.*)administrator username(.*): "{{ splunkUsername }}"
-     (.*)new password(.*): "{{ splunkPassword }}"
-    echo: no
-  when: 'not config.stat.exists'
+- name: stop service if running
+  systemd:
+    name: SplunkForwarder
+    state: stopped
 
 - name: set connection to deployment server
   expect:
-    command: /opt/splunkforwarder/bin/splunk set deploy-poll {{ splunkDeployServer }}
+    command: /opt/splunkforwarder/bin/splunk set deploy-poll {{ splunkDeployServer }} --answer-yes --accept-license --no-prompt
     responses:
       (.*)username(.*): "{{ splunkUsername }}"
       (.*)Password(.*): "{{ splunkPassword }}"
