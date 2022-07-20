@@ -58,13 +58,7 @@
     state: stopped
 
 - name: set connection to deployment server
-  expect:
-    command: /opt/splunkforwarder/bin/splunk set deploy-poll {{ splunkDeployServer }} --answer-yes --accept-license --no-prompt
-    responses:
-      (.*)username(.*): "{{ splunkUsername }}"
-      (.*)Password(.*): "{{ splunkPassword }}"
-    echo: no
-  when: 'not config.stat.exists'
+  shell: /opt/splunkforwarder/bin/splunk set deploy-poll {{ splunkDeployServer }} --answer-yes --accept-license --no-prompt
 
 - name: check to see if splunk is running again
   shell: "ps aux | grep splunk"
