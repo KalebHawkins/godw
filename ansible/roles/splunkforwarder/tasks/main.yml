@@ -41,7 +41,7 @@
   register: config
  
 - name: hash splunk admin password
-  command: /opt/splunk/bin/splunk hash-passwd "{{ splunkPassword }}"
+  command: /opt/splunkforwarder/bin/splunk hash-passwd "{{ splunkPassword }}"
   register: passhash
 
 - name: create user-seed.conf
@@ -50,7 +50,7 @@
       [user_info]
       USERNAME = {{ splunkUsername }}
       HASHED_PASSWORD = {{ passhash.stdout }}
-    dest: /opt/splunk/etc/system/local/user-seed.conf
+    dest: /opt/splunkforwarder/etc/system/local/user-seed.conf
 
 - name: start and accept license agreement for splunkforwarder
   expect:
