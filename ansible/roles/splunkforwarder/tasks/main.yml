@@ -39,6 +39,18 @@
   stat:
     path: /opt/splunkforwarder/etc
   register: config
+ 
+- name: hash splunk admin password
+  command: /opt/splunk/bin/splunk hash-passwd "{{ splunkPassword }}"
+  register: passhash
+
+- name: create user-seed.conf
+  copy: 
+    content: |
+      [user_info]
+      USERNAME = {{ splunkUsername }}
+      HASHED_PASSWORD = {{ passhash.stdout }}
+    dest: /opt/splunk/etc/system/local/user-seed.conf
 
 - name: start and accept license agreement for splunkforwarder
   expect:
